@@ -1,60 +1,76 @@
-Fedora 42 for WSL
+Fedora 43 for WSL
 ==================
 
-This project provides a ready-to-use Fedora 42 root filesystem packaged as a `.tar` archive for use with Windows Subsystem for Linux (WSL). It allows you to manually import and run Fedora 42 on Windows without needing the Microsoft Store.
+This project provides a ready-to-use Fedora 43 root filesystem packaged as a `.wsl` archive for use with Windows Subsystem for Linux (WSL). It allows you to install and run Fedora 43 on Windows without needing the Microsoft Store.
 
-The package is designed to help users get started quickly with a minimal, working Fedora environment on WSL 2.  
+The package is designed to help users get started quickly with a minimal, working Fedora environment on WSL 2.
 **This release supports systemd** out-of-the-box and is published as **Release v1**.
 
 -------------------------------------------------------
 How to Get Started
 -------------------------------------------------------
 
-1. Download the Fedora 42 tarball:
-   - From the GitHub Releases section 
+1. Download the Fedora 43 `.wsl` package:
+   - From the GitHub Releases section
 
-2. Create a target directory to hold the distribution:
+2. Install the distro into WSL:
 
-   PowerShell:
+   PowerShell or Windows Terminal from a normal Windows path such as `Downloads` or `C:\WSL`:
 
    ```
-   mkdir C:\WSL\Fedora42
+   wsl --install --from-file C:\path\to\Fedora43-WSL.wsl
    ```
 
-3. Import the distro into WSL:
+   You can also install it by double-clicking the `.wsl` file in File Explorer.
+   If you want to override the default registration name, use:
 
-   PowerShell (run from the directory containing the tar file):
-   ````
-   wsl --import fedora42 C:\WSL\Fedora42 .\fedora42-wsl-v1.tar.gz --version 2
-   ````
+   ```
+   wsl --install --from-file C:\path\to\Fedora43-WSL.wsl --name MyFedora43
+   ```
 
-4. Launch Fedora:
+   Avoid launching the installer from a `\\wsl.localhost\...` path. WSL may try to inherit that UNC working directory when it auto-launches the new distro after installation, which can produce a harmless `Failed to translate '\\wsl.localhost\...'` warning.
+
+3. Launch Fedora:
+
    ```
-   wsl -d fedora42
+   wsl -d Fedora43
    ```
+
+4. Complete the first-run setup:
+   - Enter the username you want to use.
+   - Set the password for that account.
+   - Fedora will use that account as the default user for later launches.
 
 5. Open VS Code and connect to your Fedora instance through WSL:
    - Install the "Remote - WSL" extension in VS Code.
    - Click on the green >< icon in the lower-left corner and select "Remote-WSL: New Window".
-   - From there, you can open the Fedora 42 filesystem and start developing with all the conveniences of VS Code.
+   - From there, you can open the Fedora filesystem and start developing with all the conveniences of VS Code.
+
+6. Verify your WSL version if you still see systemd warnings:
+
+   ```
+   wsl --version
+   ```
+
+   The `.wsl` package flow requires WSL 2.4.4 or newer. If you still see `Failed to start the systemd user session`, update WSL before troubleshooting the distro further.
 
 -------------------------------------------------------
-Default User Info
+First-Run User Setup
 -------------------------------------------------------
 
-The current image has a default user preconfigured:
+The image uses WSL's supported out-of-box experience (OOBE) flow:
 
-- Username: myuser
-- Password: user
+- No fixed non-root user is baked into the image.
+- The first launch prompts you to create your own default user.
+- The created user gets `sudo` access through the `wheel` group.
 
 ### Important Note :
->This is for demonstration purposes and **should be changed** after first login. In future releases, a dynamic setup script will allow setting your username and password on first launch, similar to official WSL distributions from the Microsoft Store.
+>The legacy `wsl --import` flow bypasses the OOBE experience and can still launch the distro as `root`. Use the `.wsl` installer flow shown above if you want the first-run user creation to work correctly.
 
 -------------------------------------------------------
 Plans for Future Improvements
 -------------------------------------------------------
 
-- Add a welcome script to set up a new user interactively on first launch
 - Provide multiple flavor options (minimal, developer-ready, etc.)
 - Make installation even easier via a script
 
@@ -71,7 +87,13 @@ This guide made the packaging process much simpler.
 Transparency and Build Steps
 -------------------------------------------------------
 
-This repository also includes an extra file containing the exact commands used to extract and package the Fedora root filesystem (`rootfs-extraction-instructions.txt`). This is for transparency and reproducibility.
+This repository also includes the build script used to generate the release artifact:
+
+```bash
+./fedora43/build-fedora43.sh
+```
+
+The script builds the root filesystem, applies the WSL overlay, and emits `fedora43/Fedora43-WSL.wsl`.
 
 -------------------------------------------------------
 License

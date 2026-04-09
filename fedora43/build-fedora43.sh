@@ -1,13 +1,18 @@
 #!/bin/bash
-# Fedora 43 WSL RootFS Builder
+# Fedora 43 WSL rootfs builder and packager.
 
-set -e
+set -euo pipefail
 
-EXPORT_DIR="/home/myuser/Fedora42_WSL/fedora43/rootfs"
-OVERLAY_DIR="/home/myuser/Fedora42_WSL/fedora43/rootfs-overlay"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+EXPORT_DIR="$SCRIPT_DIR/rootfs"
+OVERLAY_DIR="$SCRIPT_DIR/rootfs-overlay"
+OUTPUT_WSL="$SCRIPT_DIR/Fedora43-WSL.wsl"
 RELEASE_VER="43"
+OWNER_UID="$(id -u)"
+OWNER_GID="$(id -g)"
 
 echo "Creating Fedora $RELEASE_VER rootfs in $EXPORT_DIR..."
+sudo rm -rf "$EXPORT_DIR"
 mkdir -p "$EXPORT_DIR"
 
 # Build the rootfs using dnf5 --installroot
@@ -26,7 +31,8 @@ sudo dnf5 install --installroot="$EXPORT_DIR" \
   --disablerepo="*" --enablerepo="fedora,updates" \
   --use-host-config \
   --nodocs -y \
-  @core sudo passwd shadow-utils util-linux dnf5 iputils findutils cracklib-dicts \
+  @core sudo passwd shadow-utils util-linux dnf5 iputils cracklib-dicts \
+  wget tar gzip findutils which procps-ng \
   dbus-broker dbus-daemon polkit systemd-pam
 
 # Verify that bash exists
@@ -38,21 +44,31 @@ fi
 # Apply overlay
 echo "Applying WSL overlay..."
 if [ -d "$OVERLAY_DIR" ]; then
-    sudo cp -r "$OVERLAY_DIR"/* "$EXPORT_DIR"/
+    sudo cp -a "$OVERLAY_DIR"/. "$EXPORT_DIR"/
 fi
 
-# # Disable problematic services for WSL
-# echo "Disabling problematic services..."
-# sudo chroot "$EXPORT_DIR" systemctl mask systemd-networkd-wait-online.service
-# sudo chroot "$EXPORT_DIR" systemctl enable dbus-broker.service
-
-# Set permissions for the setup script
-sudo chmod +x "$EXPORT_DIR/usr/local/bin/wsl-setup.sh"
+# Set expected ownership and permissions for WSL config and setup files.
+sudo chown root:root \
+  "$EXPORT_DIR/etc/oobe.sh" \
+  "$EXPORT_DIR/etc/wsl.conf" \
+  "$EXPORT_DIR/etc/wsl-distribution.conf" \
+  "$EXPORT_DIR/usr/lib/wsl/terminal-profile.json"
+sudo chmod 0755 "$EXPORT_DIR/etc/oobe.sh"
+sudo chmod 0644 \
+  "$EXPORT_DIR/etc/wsl.conf" \
+  "$EXPORT_DIR/etc/wsl-distribution.conf" \
+  "$EXPORT_DIR/usr/lib/wsl/terminal-profile.json"
 
 # Final cleanup
 echo "Cleaning up..."
 sudo dnf5 --installroot="$EXPORT_DIR" clean all
 sudo rm -rf "$EXPORT_DIR/var/cache/dnf"
 
-echo "RootFS built successfully in $EXPORT_DIR"
-echo "To pack: cd $EXPORT_DIR && sudo tar --numeric-owner -czf ../Fedora$RELEASE_VER-WSL.tar.gz ."
+echo "Packing $OUTPUT_WSL..."
+rm -f "$OUTPUT_WSL"
+sudo tar --numeric-owner --xattrs --acls -C "$EXPORT_DIR" -czf "$OUTPUT_WSL" .
+sudo chown "$OWNER_UID:$OWNER_GID" "$OUTPUT_WSL"
+chmod 0644 "$OUTPUT_WSL"
+
+echo "Rootfs built successfully in $EXPORT_DIR"
+echo "WSL package created at $OUTPUT_WSL"

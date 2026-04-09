@@ -1,1 +1,4 @@
 fedora43/rootfs/
+.vscode/
+.specstory/
+fedora43/Fedora43-WSL.wsl

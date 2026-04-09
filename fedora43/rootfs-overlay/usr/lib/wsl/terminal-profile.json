@@ -1,0 +1,30 @@
+{
+  "profiles": [
+    {
+      "colorScheme": "Fedora 43",
+      "fontFace": "Cascadia Mono",
+      "useAcrylic": false
+    }
+  ],
+  "schemes": [
+    {
+      "name": "Fedora 43",
+      "black": "#1f1d2b",
+      "red": "#c01c28",
+      "green": "#26a269",
+      "yellow": "#cd9309",
+      "blue": "#1c71d8",
+      "purple": "#813d9c",
+      "cyan": "#2aa1b3",
+      "white": "#d0cfcc",
+      "brightBlack": "#5e5c64",
+      "brightRed": "#f66151",
+      "brightGreen": "#33d17a",
+      "brightYellow": "#e9ad0c",
+      "brightBlue": "#62a0ea",
+      "brightPurple": "#c061cb",
+      "brightCyan": "#33c7de",
+      "brightWhite": "#ffffff"
+    }
+  ]
+}
