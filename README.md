@@ -4,7 +4,7 @@ Fedora 43 for WSL
 This project provides a ready-to-use Fedora 43 root filesystem packaged as a `.wsl` archive for use with Windows Subsystem for Linux (WSL). It allows you to install and run Fedora 43 on Windows without needing the Microsoft Store.
 
 The package is designed to help users get started quickly with a minimal, working Fedora environment on WSL 2.
-**This release supports systemd** out-of-the-box and is published as **Release v1**.
+**This release supports systemd** out-of-the-box.
 
 -------------------------------------------------------
 How to Get Started
@@ -73,15 +73,6 @@ Plans for Future Improvements
 
 - Provide multiple flavor options (minimal, developer-ready, etc.)
 - Make installation even easier via a script
-
--------------------------------------------------------
-Credits
--------------------------------------------------------
-
-Special thanks to Jonathan Bowman for his helpful article on setting up Fedora on WSL:
-https://dev.to/bowmanjd/install-fedora-on-windows-subsystem-for-linux-wsl-4b26
-
-This guide made the packaging process much simpler.
 
 -------------------------------------------------------
 Transparency and Build Steps
