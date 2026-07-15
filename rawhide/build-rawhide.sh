@@ -11,18 +11,22 @@ RELEASE_VER="rawhide"
 OWNER_UID="$(id -u)"
 OWNER_GID="$(id -g)"
 
+# Use sudo when running as regular user, skip when already root.
+SUDO=""
+if [ "$OWNER_UID" -ne 0 ]; then SUDO="sudo"; fi
+
 echo "Creating Fedora Rawhide rootfs in $EXPORT_DIR..."
-sudo rm -rf "$EXPORT_DIR"
+$SUDO rm -rf "$EXPORT_DIR"
 mkdir -p "$EXPORT_DIR"
 
 # Bootstrap rpmdb and import the current Rawhide signing key
 # from distribution-gpg-keys (same method KIWI/image-builder use).
 # This avoids stale-key failures when Rawhide bumps releases.
-sudo rpm --root "$EXPORT_DIR" --initdb
-sudo rpm --root "$EXPORT_DIR" --import /usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-rawhide-primary
+$SUDO rpm --root "$EXPORT_DIR" --initdb
+$SUDO rpm --root "$EXPORT_DIR" --import /usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-rawhide-primary
 
 echo "Initializing rootfs with fedora-release and fedora-repos..."
-sudo dnf5 install --installroot="$EXPORT_DIR" \
+$SUDO dnf5 install --installroot="$EXPORT_DIR" \
   --releasever="$RELEASE_VER" \
   --setopt=install_weak_deps=False \
   --setopt=reposdir=/etc/yum.repos.d \
@@ -30,7 +34,7 @@ sudo dnf5 install --installroot="$EXPORT_DIR" \
   --nodocs -y fedora-release fedora-repos
 
 echo "Installing core packages..."
-sudo dnf5 install --installroot="$EXPORT_DIR" \
+$SUDO dnf5 install --installroot="$EXPORT_DIR" \
   --releasever="$RELEASE_VER" \
   --setopt=install_weak_deps=False \
   --setopt=reposdir=/etc/yum.repos.d \
@@ -49,11 +53,11 @@ fi
 # Apply overlay
 echo "Applying WSL overlay..."
 if [ -d "$OVERLAY_DIR" ]; then
-    sudo cp -a "$OVERLAY_DIR"/. "$EXPORT_DIR"/
+    $SUDO cp -a "$OVERLAY_DIR"/. "$EXPORT_DIR"/
 fi
 
 # Set expected ownership and permissions for WSL config and setup files.
-sudo chown root:root \
+$SUDO chown root:root \
   "$EXPORT_DIR/etc/oobe.sh" \
   "$EXPORT_DIR/etc/wsl.conf" \
   "$EXPORT_DIR/etc/wsl-distribution.conf" \
@@ -61,8 +65,8 @@ sudo chown root:root \
   "$EXPORT_DIR/usr/lib/systemd/system/systemd-firstboot.service.d/override.conf" \
   "$EXPORT_DIR/usr/lib/tmpfiles.d/wsl-setup.conf" \
   "$EXPORT_DIR/usr/share/user-tmpfiles.d/wsl-setup.conf"
-sudo chmod 0755 "$EXPORT_DIR/etc/oobe.sh"
-sudo chmod 0644 \
+$SUDO chmod 0755 "$EXPORT_DIR/etc/oobe.sh"
+$SUDO chmod 0644 \
   "$EXPORT_DIR/etc/wsl.conf" \
   "$EXPORT_DIR/etc/wsl-distribution.conf" \
   "$EXPORT_DIR/usr/lib/wsl/terminal-profile.json" \
@@ -72,13 +76,13 @@ sudo chmod 0644 \
 
 # Final cleanup
 echo "Cleaning up..."
-sudo dnf5 --installroot="$EXPORT_DIR" clean all
-sudo rm -rf "$EXPORT_DIR/var/cache/dnf"
+$SUDO dnf5 --installroot="$EXPORT_DIR" clean all
+$SUDO rm -rf "$EXPORT_DIR/var/cache/dnf"
 
 echo "Packing $OUTPUT_WSL..."
 rm -f "$OUTPUT_WSL"
-sudo tar --numeric-owner --xattrs --acls -C "$EXPORT_DIR" -czf "$OUTPUT_WSL" .
-sudo chown "$OWNER_UID:$OWNER_GID" "$OUTPUT_WSL"
+$SUDO tar --numeric-owner --xattrs --acls -C "$EXPORT_DIR" -czf "$OUTPUT_WSL" .
+$SUDO chown "$OWNER_UID:$OWNER_GID" "$OUTPUT_WSL"
 chmod 0644 "$OUTPUT_WSL"
 
 echo "Rootfs built successfully in $EXPORT_DIR"

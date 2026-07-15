@@ -1,0 +1,74 @@
+name: Weekly Build and Release
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:rawhide
+      options: --security-opt seccomp=unconfined
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get timestamp
+        id: timestamp
+        run: |
+          echo "date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+          echo "time=$(date +%H%M)" >> $GITHUB_OUTPUT
+
+      - name: Build Rawhide rootfs
+        run: ./rawhide/build-rawhide.sh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: rawhide-${{ steps.timestamp.outputs.date }}-${{ steps.timestamp.outputs.time }}
+          name: 'Fedora Rawhide ${{ steps.timestamp.outputs.date }} ${{ steps.timestamp.outputs.time }} UTC'
+          body: 'Weekly automated build of Fedora Rawhide for WSL.'
+          files: rawhide/Fedora-Rawhide-WSL.wsl
+          draft: false
+          prerelease: false
+
+      - name: Cleanup old releases
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            const rawhideReleases = releases.data
+              .filter(r => r.tag_name.startsWith('rawhide-'));
+            const cutoff = new Date();
+            cutoff.setMonth(cutoff.getMonth() - 3);
+            let deleted = 0;
+            for (const release of rawhideReleases) {
+              const parts = release.tag_name.replace('rawhide-', '').split('-');
+              const dateStr = parts[0];
+              const [y, m, d] = dateStr.split('-').map(Number);
+              const releaseDate = new Date(y, m - 1, d);
+              if (releaseDate < cutoff) {
+                await github.rest.repos.deleteRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: release.id
+                });
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `tags/${release.tag_name}`
+                });
+                deleted++;
+              }
+            }
+            console.log(`Cleaned up ${deleted} releases older than 3 months`);

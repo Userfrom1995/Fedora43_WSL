@@ -40,15 +40,22 @@ How to Get Started
 
 4. Complete the first-run setup:
    - Enter the username you want to use.
-   - Set the password for that account.
-   - Fedora will use that account as the default user for later launches.
+   - Fedora will use that account as the default user with passwordless sudo.
 
-5. Open VS Code and connect to your Fedora instance through WSL:
+5. Update packages after first boot (recommended):
+
+   ```
+   sudo dnf5 upgrade
+   ```
+
+   The `.wsl` image is a snapshot of Rawhide at build time. Running `dnf5 upgrade` pulls the latest packages.
+
+6. Open VS Code and connect to your Fedora instance through WSL:
    - Install the "Remote - WSL" extension in VS Code.
    - Click on the green >< icon in the lower-left corner and select "Remote-WSL: New Window".
    - From there, you can open the Fedora filesystem and start developing with all the conveniences of VS Code.
 
-6. Verify your WSL version if you still see systemd warnings:
+7. Verify your WSL version if you still see systemd warnings:
 
    ```
    wsl --version
@@ -64,17 +71,29 @@ The image uses WSL's supported out-of-box experience (OOBE) flow:
 
 - No fixed non-root user is baked into the image.
 - The first launch prompts you to create your own default user.
-- The created user gets `sudo` access through the `wheel` group.
+- The created user gets passwordless sudo access via a dedicated sudoers file and is added to the `wheel` group.
+- No password is set during setup — run `sudo passwd <username>` later if you want one.
 
 ### Important Note :
 >The legacy `wsl --import` flow bypasses the OOBE experience and can still launch the distro as `root`. Use the `.wsl` installer flow shown above if you want the first-run user creation to work correctly.
 
 -------------------------------------------------------
-Plans for Future Improvements
+Releases
 -------------------------------------------------------
 
-- Provide multiple flavor options (minimal, developer-ready, etc.)
-- Make installation even easier via a script
+Releases are built automatically every week by GitHub Actions and tagged with the build date:
+
+```
+rawhide-2026-07-15-0600
+ ^^^^^^^  ^^^^^^^^ ^^^^
+ repo     date     time (UTC)
+```
+
+- **New tag on each release** — each build is a unique, immutable snapshot.
+- **Older releases are deleted automatically** — only the last 3 months of builds are kept.
+- **Manual builds** — the maintainer can trigger a build at any time from the Actions tab. A same-day build gets a unique time-stamped tag (e.g. `rawhide-2026-07-15-1430`).
+
+If you downloaded a `.wsl` file a while ago, just run `sudo dnf5 upgrade` after first boot to get the latest packages.
 
 -------------------------------------------------------
 Transparency and Build Steps
@@ -94,4 +113,4 @@ License
 
 This project is licensed under the MIT License.
 
-Fedora® is a registered trademark of Red Hat, Inc., and is used here in a community capacity for educational and practical purposes. This project is not affiliated with or endorsed by Red Hat.
+Fedora is a registered trademark of Red Hat, Inc., and is used here in a community capacity for educational and practical purposes. This project is not affiliated with or endorsed by Red Hat.

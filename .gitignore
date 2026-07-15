@@ -2,3 +2,4 @@ rawhide/rootfs/
 .vscode/
 .specstory/
 rawhide/Fedora-Rawhide-WSL.wsl
+wsl-setup/
