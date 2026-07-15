@@ -19,6 +19,12 @@ echo "Creating Fedora Rawhide rootfs in $EXPORT_DIR..."
 $SUDO rm -rf "$EXPORT_DIR"
 mkdir -p "$EXPORT_DIR"
 
+# Ensure distribution-gpg-keys is available (not pre-installed in all containers).
+if [ ! -d /usr/share/distribution-gpg-keys/fedora ]; then
+    echo "Installing distribution-gpg-keys..."
+    $SUDO dnf5 install -y --setopt=install_weak_deps=False distribution-gpg-keys
+fi
+
 # Bootstrap rpmdb and import the current Rawhide signing key
 # from distribution-gpg-keys (same method KIWI/image-builder use).
 # This avoids stale-key failures when Rawhide bumps releases.
