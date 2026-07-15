@@ -81,7 +81,7 @@ The image uses WSL's supported out-of-box experience (OOBE) flow:
 Releases
 -------------------------------------------------------
 
-Releases are built automatically every week by GitHub Actions and tagged with the build date:
+Releases are built automatically every week by GitHub Actions on Monday at 6:00 AM UTC and tagged with the build date:
 
 ```
 rawhide-2026-07-15-0600
