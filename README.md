@@ -1,9 +1,9 @@
 Fedora Rawhide for WSL
 ======================
 
-This project provides a ready-to-use Fedora Rawhide root filesystem packaged as a `.wsl` archive for use with Windows Subsystem for Linux (WSL). It allows you to install and run Fedora Rawhide on Windows without needing the Microsoft Store.
+This project provides a ready-to-use Fedora Rawhide root filesystem packaged as a `.wsl` archive for use with Windows Subsystem for Linux (WSL). It allows you to install and run Fedora Rawhide on Windows.
 
-Because Rawhide is Fedora's rolling release, this package never needs a version bump — rebuilding always produces the latest Rawhide snapshot.
+A new build is published every week to keep the image up to date with the latest Rawhide packages.
 
 The package is designed to help users get started quickly with a minimal, working Fedora environment on WSL 2.
 **This release supports systemd** out-of-the-box.
