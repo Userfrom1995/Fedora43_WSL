@@ -1,12 +1,21 @@
 Fedora Rawhide for WSL
 ======================
 
-This project provides a ready-to-use Fedora Rawhide root filesystem packaged as a `.wsl` archive for use with Windows Subsystem for Linux (WSL). It allows you to install and run Fedora Rawhide on Windows.
+A ready-to-use Fedora Rawhide root filesystem for Windows Subsystem for Linux (WSL) 2. Install it, create your user, and you're running the latest Fedora.
 
-A new build is published every week to keep the image up to date with the latest Rawhide packages.
+Fedora Rawhide is the rolling-development branch of Fedora. It always has the latest packages, but it moves fast. This project wraps it into a `.wsl` archive that stays current with a new automated build every week.
 
-The package is designed to help users get started quickly with a minimal, working Fedora environment on WSL 2.
-**This release supports systemd** out-of-the-box.
+-------------------------------------------------------
+Features
+-------------------------------------------------------
+
+- **Always up to date** — a new rootfs is built every Monday from the latest Rawhide repository, so you're never more than a week behind.
+- **Systemd support** — works out of the box on WSL2.
+- **First-run user setup** — on first launch, you create your own user account with passwordless sudo. No pre-baked users, no default passwords.
+- **WSLg integration** — X11, Wayland, and PulseAudio are wired up automatically so Linux GUI apps just work.
+- **Minimal footprint** — only the essentials are included (`@core`, `dnf5`, `systemd`, `polkit`). You decide what else to install.
+- **Weekly automated builds** — GitHub Actions rebuilds the rootfs every Monday at 6:00 AM UTC and publishes it as a dated release. You can also trigger a build manually at any time.
+- **Transparent build process** — the full build script is in this repository. You can inspect it, modify it, or run it yourself.
 
 -------------------------------------------------------
 How to Get Started
