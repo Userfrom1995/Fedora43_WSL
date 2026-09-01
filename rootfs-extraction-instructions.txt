@@ -3,7 +3,7 @@ mkdir -p $HOME/rawhide-rootfs
 sudo dnf5 install --installroot=$HOME/rawhide-rootfs \
   --releasever=rawhide \
   --setopt=install_weak_deps=False \
-  --disablerepo="*" --enablerepo=fedora \
+  --disablerepo="*" --enablerepo=rawhide \
   --use-host-config \
   --nodocs -y @core
 

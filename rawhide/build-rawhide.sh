@@ -33,18 +33,18 @@ $SUDO rpm --root "$EXPORT_DIR" --import /usr/share/distribution-gpg-keys/fedora/
 
 echo "Initializing rootfs with fedora-release and fedora-repos..."
 $SUDO dnf5 install --installroot="$EXPORT_DIR" \
+  --use-host-config \
   --releasever="$RELEASE_VER" \
   --setopt=install_weak_deps=False \
-  --setopt=reposdir=/etc/yum.repos.d \
-  --disablerepo="*" --enablerepo="fedora" \
+  --disablerepo="*" --enablerepo="rawhide" \
   --nodocs -y fedora-release fedora-repos
 
 echo "Installing core packages..."
 $SUDO dnf5 install --installroot="$EXPORT_DIR" \
+  --use-host-config \
   --releasever="$RELEASE_VER" \
   --setopt=install_weak_deps=False \
-  --setopt=reposdir=/etc/yum.repos.d \
-  --disablerepo="*" --enablerepo="fedora" \
+  --disablerepo="*" --enablerepo="rawhide" \
   --nodocs -y \
   @core sudo passwd shadow-utils util-linux dnf5 iputils cracklib-dicts \
   wget tar gzip findutils which procps-ng \
